@@ -1,9 +1,8 @@
 
+// #include <string>
+#include <iostream>
 #include "../include/AnalogIn.hpp"
-#include <ros/ros.h>
 #include <ros/callback_queue.h>
-
-#include "../include/StdMsgsFloat64.hpp"
 
 using namespace halros;
 
@@ -19,38 +18,83 @@ AnalogIn::AnalogIn(std::string id,
 					 std::string unit,
 					 std::string additionalArguments
 		  ) : ScalableInput<double>(id, libHandle, scale, offset, rangeMin, rangeMax, unit),
-		      subDeviceNumber(subDeviceNumber), channel(channel) {
-	dev = RosNodeDevice::getDevice(device);
-	rosNodeHandle= dev->getRosNodeHandle();
-	data = NAN;
-	int queueSize = 1000;
+		      subDeviceNumber(subDeviceNumber),
+		      channel(channel),
+		      dev(RosNodeDevice::getDevice(device)),
+		      rosNodeHandle(dev->getRosNodeHandle()), 
+		      data(NAN),
+		      queueSize(1000),
+		      callOne(true)
+		      {
+// 	dev = RosNodeDevice::getDevice(device);
+// 	rosNodeHandle= dev->getRosNodeHandle();
+// 	data = NAN;
+// 	int queueSize = 1000;
 	
-	auto msgType = additionalArguments;
-	if( msgType == "std_msgs::Float64" ) {
-		subscriber = rosNodeHandle->subscribe(id, queueSize, &AnalogIn::rosCallbackFct, this);
-	}
-	else if ( msgType == "asdfa" ) {
+	// parsing additionalArguments:
+	auto s = additionalArguments;
+	bool stop = false;
+	while(!stop) {
+		if(s.find(";") == std::string::npos) stop=true;
+		std::string statement = s.substr(0, s.find(";"));
+		std::string key = statement.substr(0, statement.find("="));
+		std::string value = statement.substr(statement.find("=")+1);
+		s = s.substr(s.find(";")+1);
 		
+		if((key=="msgType") | (key==" msgType")) 
+			msgType = value;
+		else if((key=="topic") | (key==" topic")) 
+			topic = value;
+		else if((key=="dataMember") | (key==" dataMember")) 
+			dataMember = value;
+		else if((key=="queueSize") | (key==" queueSize"))
+			queueSize = std::stoi(value);
+		else if((key=="callOne") | (key==" callOne")) {
+			if		(value=="true")		callOne = true;
+			else if	(value=="false")	callOne = false;
+			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key 'callOne' is not supported." << std::endl;
+		}
+		else
+			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
-	else if ( msgType == "" ) {
-		std::cout << "ERROR ros-eeros wrapper library: msgType is empty" << std::endl;
+	
+	// selecting callback function for ros
+	if		( msgType == "std_msgs::Float64" ) 
+		subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::stdMsgsFloat64Data, this);
+	else if ( msgType == "sensor_msgs::LaserScan" ) {
+		if 		( dataMember == "angle_min" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMin, this);
+		else if ( dataMember == "angle_max" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMax, this);
+		else if ( dataMember == "angle_increment" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleIncrement, this);
+		else if ( dataMember == "time_increment" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanTimeIncrement, this);
+		else if ( dataMember == "scan_time" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanScanTime, this);
+		else if ( dataMember == "range_min" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMin, this);
+		else if ( dataMember == "range_max" )
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMax, this);
+		else
+			std::cout << "ERROR ros-eeros wrapper library: dataMember '" << dataMember << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
-	else {
+	else if ( msgType == "" )
+		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
+	else 
 		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
-	}
 }
 
-void AnalogIn::rosCallbackFct(const std_msgs::Float64::Type& msg) {
-	data = msg.data;
-}
 
+// HAL typical functions
 double AnalogIn::get() {
-//  	ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
-														//  Only newest message is processed. Older ones are discarded.
-	ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
+	if ( callOne )		
+		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
+	else
+		ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
+															//  Only newest message is processed. Older ones are discarded.
 	
 	double inVal = (data - offset) / scale;
-	
 	if(inVal > maxIn) inVal = maxIn;
 	if(inVal < minIn) inVal = minIn;
 	
