@@ -1,8 +1,6 @@
 include_directories(../include/)
 
-set(ROSEEROS_SRCS RosNodeDevice.cpp
-SimDevice.cpp 
-DigIn.cpp DigOut.cpp AnalogIn.cpp AnalogOut.cpp)
+set(ROSEEROS_SRCS RosNodeDevice.cpp DigIn.cpp DigOut.cpp AnalogIn.cpp AnalogOut.cpp)
 
 add_library(roseeros SHARED ${ROSEEROS_SRCS})
 add_library(roseeros_static ${ROSEEROS_SRCS})

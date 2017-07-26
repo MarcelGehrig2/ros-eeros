@@ -1,5 +1,3 @@
-
-// #include <string>
 #include <iostream>
 #include "../include/AnalogIn.hpp"
 #include <ros/callback_queue.h>
@@ -8,7 +6,7 @@ using namespace halros;
 
 AnalogIn::AnalogIn(std::string id,
 					 void* libHandle,
-					 std::string device,
+					 std::string device,		//ROS node name
 					 uint32_t subDeviceNumber,
 					 uint32_t channel,
 					 double scale,
@@ -22,14 +20,11 @@ AnalogIn::AnalogIn(std::string id,
 		      channel(channel),
 		      dev(RosNodeDevice::getDevice(device)),
 		      rosNodeHandle(dev->getRosNodeHandle()), 
-		      data(NAN),
+// 		      data(NAN),	// may causes "terminate called after throwing an instance of 'std::length_error'  what():  basic_string::_M_create" if topic does not exist
+		      data(0),
 		      queueSize(1000),
 		      callOne(true)
 		      {
-// 	dev = RosNodeDevice::getDevice(device);
-// 	rosNodeHandle= dev->getRosNodeHandle();
-// 	data = NAN;
-// 	int queueSize = 1000;
 	
 	// parsing additionalArguments:
 	auto s = additionalArguments;
@@ -41,43 +36,45 @@ AnalogIn::AnalogIn(std::string id,
 		std::string value = statement.substr(statement.find("=")+1);
 		s = s.substr(s.find(";")+1);
 		
-		if((key=="msgType") | (key==" msgType")) 
+		if		((key=="msgType") | (key==" msgType")) 
 			msgType = value;
-		else if((key=="topic") | (key==" topic")) 
+		else if	((key=="topic") | (key==" topic")) 
 			topic = value;
-		else if((key=="dataMember") | (key==" dataMember")) 
-			dataMember = value;
-		else if((key=="queueSize") | (key==" queueSize"))
+		else if	((key=="dataField") | (key==" dataField")) 
+			dataField = value;
+		else if	((key=="queueSize") | (key==" queueSize"))
 			queueSize = std::stoi(value);
-		else if((key=="callOne") | (key==" callOne")) {
+		else if	((key=="callOne") | (key==" callOne")) {
 			if		(value=="true")		callOne = true;
 			else if	(value=="false")	callOne = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key 'callOne' is not supported." << std::endl;
+			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else
 			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
 	
-	// selecting callback function for ros
-	if		( msgType == "std_msgs::Float64" ) 
-		subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::stdMsgsFloat64Data, this);
+	// 3.) Extend parser by selecting correct callback function for ros
+	// ////////////////////////////////////////////////////////////////
+	if		( msgType == "std_msgs::Float64" ) {
+			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::stdMsgsFloat64Data, this);
+	}
 	else if ( msgType == "sensor_msgs::LaserScan" ) {
-		if 		( dataMember == "angle_min" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMin, this);
-		else if ( dataMember == "angle_max" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMax, this);
-		else if ( dataMember == "angle_increment" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleIncrement, this);
-		else if ( dataMember == "time_increment" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanTimeIncrement, this);
-		else if ( dataMember == "scan_time" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanScanTime, this);
-		else if ( dataMember == "range_min" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMin, this);
-		else if ( dataMember == "range_max" )
-			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMax, this);
+		if 		( dataField == "angle_min" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMin, this);
+		else if ( dataField == "angle_max" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMax, this);
+		else if ( dataField == "angle_increment" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleIncrement, this);
+		else if ( dataField == "time_increment" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanTimeIncrement, this);
+		else if ( dataField == "scan_time" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanScanTime, this);
+		else if ( dataField == "range_min" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMin, this);
+		else if ( dataField == "range_max" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMax, this);
 		else
-			std::cout << "ERROR ros-eeros wrapper library: dataMember '" << dataMember << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	else if ( msgType == "" )
 		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
@@ -86,7 +83,8 @@ AnalogIn::AnalogIn(std::string id,
 }
 
 
-// HAL typical functions
+// HAL functions
+// /////////////
 double AnalogIn::get() {
 	if ( callOne )		
 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message

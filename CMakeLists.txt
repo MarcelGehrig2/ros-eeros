@@ -29,15 +29,9 @@ add_subdirectory(lib)
 #add_subdirectory(test)
 
 INSTALL(FILES 
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/SimDevice.hpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/SimBehaviour.hpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/SimChannel.hpp
-	
 	${CMAKE_CURRENT_SOURCE_DIR}/include/RosNodeDevice.hpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/RosDoubleIn.hpp
-#	${CMAKE_CURRENT_SOURCE_DIR}/include/DigIn.hpp 
-#	${CMAKE_CURRENT_SOURCE_DIR}/include/DigOut.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/DigIn.hpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/include/DigOut.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/AnalogIn.hpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/AnalogOut.hpp
-# 	${CMAKE_CURRENT_SOURCE_DIR}/include/Reflect.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/AnalogOut.hpp
 DESTINATION include/ros-eeros)
