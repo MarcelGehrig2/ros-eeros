@@ -58,6 +58,7 @@ AnalogIn::AnalogIn(std::string id,
 	if		( msgType == "std_msgs::Float64" ) {
 			subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::stdMsgsFloat64Data, this);
 	}
+	
 	else if ( msgType == "sensor_msgs::LaserScan" ) {
 		if 		( dataField == "angle_min" )
 					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanAngleMin, this);
@@ -76,6 +77,14 @@ AnalogIn::AnalogIn(std::string id,
 		else
 			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
+	
+	else if	( msgType == "sensor_msgs::JointState" ) {
+		if 		( dataField == "position0" )
+					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsJointStatePosition0, this);
+		else
+			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+	}
+	
 	else if ( msgType == "" )
 		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
@@ -90,11 +99,13 @@ double AnalogIn::get() {
 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
 	else
 		ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
-															//  Only newest message is processed. Older ones are discarded.
+															//  Only newest message is processed. Older ones are discarded.	
 	
 	double inVal = (data - offset) / scale;
 	if(inVal > maxIn) inVal = maxIn;
 	if(inVal < minIn) inVal = minIn;
+	
+// 	std::cout << "timestamp: " << ti
 	
 	return inVal;
 }

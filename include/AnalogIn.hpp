@@ -8,6 +8,7 @@
 // ////////////////////////////
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/JointState.h>
 
 namespace halros {
 	class AnalogIn : public eeros::hal::ScalableInput<double> {
@@ -33,6 +34,8 @@ namespace halros {
 		void sensorMsgsLaserScanRangeMin		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.range_min;} ;
 		void sensorMsgsLaserScanRangeMax		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.range_max;} ;
 		
+		void sensorMsgsJointStatePosition0		(const sensor_msgs::JointState::Type& msg)	{data = msg.position[0];} ;
+
 
 		RosNodeDevice* dev;
 		std::shared_ptr<ros::NodeHandle> rosNodeHandle;
