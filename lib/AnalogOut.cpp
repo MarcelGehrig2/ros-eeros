@@ -52,7 +52,8 @@ AnalogOut::AnalogOut(std::string id,
 		publisher = rosNodeHandle->advertise<std_msgs::Float64>(topic, queueSize);
 		setFunction = &stdMsgsFloat64Data;
 	}
-	else if ( msgType == "sensor_msgs::LaserScan" ) {
+	
+	else if ( msgType == "sensor_msgs::LaserScan" ) {			
 		publisher = rosNodeHandle->advertise<sensor_msgs::LaserScan>(topic, queueSize);
 		if 		( dataField == "angle_min" )
 			setFunction = &sensorMsgsLaserScanAngleMin;
@@ -71,6 +72,15 @@ AnalogOut::AnalogOut(std::string id,
 		else
 			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
+	
+	else if ( msgType == "sensor_msgs::JointState" ) {
+		publisher = rosNodeHandle->advertise<sensor_msgs::JointState>(topic, queueSize);
+		if 		( dataField == "effort0" )
+			setFunction = &sensorMsgsJointStateEffort0;
+		else
+			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+	}
+	
 	else if ( msgType == "" )
 		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
@@ -140,6 +150,16 @@ void AnalogOut::sensorMsgsLaserScanRangeMax(const double value, const ros::Publi
 	msg.range_max = value;
 	publisher.publish(msg);
 }
+
+// sensor_msgs::JointState
+void AnalogOut::sensorMsgsJointStateEffort0(const double value, const ros::Publisher& publisher) {
+	sensor_msgs::JointState msg;
+	msg.header.stamp = getTime();
+	std::vector<double> valueTmp (1, value);
+	msg.effort = valueTmp;
+	publisher.publish(msg);
+}
+
 
 
 // HAL functions

@@ -8,6 +8,7 @@
 // ////////////////////////////
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/JointState.h>
 
 namespace halros {
 	class AnalogOut : public eeros::hal::ScalableOutput<double> {
@@ -36,6 +37,8 @@ namespace halros {
 		static void sensorMsgsLaserScanScanTime			(const double value, const ros::Publisher& publisher);
 		static void sensorMsgsLaserScanRangeMin			(const double value, const ros::Publisher& publisher);
 		static void sensorMsgsLaserScanRangeMax			(const double value, const ros::Publisher& publisher);
+		
+		static void sensorMsgsJointStateEffort0			(const double value, const ros::Publisher& publisher);
 		
 		
 		RosNodeDevice* dev;
