@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <eeros/hal/Input.hpp>
+// #include "/home/mgehrig2/VT2/Software/installx86/include/eeros/hal/Input.hpp"
 #include "RosNodeDevice.hpp"
 #include <ros/ros.h>
 // ROS message types
@@ -14,6 +15,7 @@ namespace halros {
 	public:
 		DigIn(std::string id, void* libHandle, std::string device, uint32_t subDeviceNumber, uint32_t channel, bool inverted = false, std::string additionalArguments = "");
 		virtual bool get();
+		virtual uint64_t getTimestamp() override;
 		
 	private:
 		// callback functions for ROS
