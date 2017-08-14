@@ -17,8 +17,12 @@ namespace halros {
 		
 	private:
 		// callback functions for ROS
-		void sensorMsgsBatteryStatePresent		(const sensor_msgs::BatteryState::Type& msg)	{data = msg.present;} ;
+		void sensorMsgsBatteryStatePresent		(const sensor_msgs::BatteryState::Type& msg)	{	data = msg.present;
+																									setTimestampFromRosMsgHeader(msg.header); } ;
 		
+		
+		void setTimestampFromRosMsgHeader(const std_msgs::Header& header);
+		uint64_t timestamp;
 		
 		bool inverted;
 		RosNodeDevice* dev;

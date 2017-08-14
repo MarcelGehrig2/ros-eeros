@@ -110,6 +110,15 @@ double AnalogIn::get() {
 	return inVal;
 }
 
+uint64_t AnalogIn::getTimestamp() {
+	return timestamp;
+}
+
+void AnalogIn::setTimestampFromRosMsgHeader(const std_msgs::Header& header) {
+	timestamp = header.stamp.toNSec();
+}
+
+
 extern "C"{
 	eeros::hal::ScalableInput<double> *createAnalogIn(std::string id, 
 							void* libHandle, 

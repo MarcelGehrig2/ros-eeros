@@ -67,6 +67,14 @@ bool DigIn::get() {
 	return data;
 }
 
+uint64_t DigIn::getTimestamp() {
+	return timestamp;
+}
+
+void DigIn::setTimestampFromRosMsgHeader(const std_msgs::Header& header) {
+	timestamp = header.stamp.toNSec();
+}
+
 extern "C" eeros::hal::Input<bool> *createDigIn(	std::string id,
 													void* libHandle,
 													std::string device,
