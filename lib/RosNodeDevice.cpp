@@ -14,7 +14,7 @@ RosNodeDevice::RosNodeDevice(std::__cxx11::string rosNode) {
 //  	rosNodeHandle = &n;
 	ros::NodeHandle n;
 	rosNodeHandle = std::make_shared<ros::NodeHandle>( n );
-	
+	std::cout << "RosNodeDevice " << rosNode << " constructed" << std::endl;
 	devices[rosNode] = this;
 }
 

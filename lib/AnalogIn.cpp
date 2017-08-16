@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../include/AnalogIn.hpp"
 #include <ros/callback_queue.h>
+#include <ros/node_handle.h>
 
 using namespace halros;
 
@@ -95,16 +96,41 @@ AnalogIn::AnalogIn(std::string id,
 // HAL functions
 // /////////////
 double AnalogIn::get() {
-	if ( callOne )		
+// 	std::cout << "AAAAAAAAAAA" << std::endl;
+// 	ros::getGlobalCallbackQueue();
+// 	std::cout << "AAAAAAAAAAA" << std::endl;
+// 	ros::getGlobalCallbackQueue();
+/*	if ( callOne )	 {
 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
-	else
+	} else {
 		ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
-															//  Only newest message is processed. Older ones are discarded.	
+	}	*/													//  Only newest message is processed. Older ones are discarded.
+
+// 	auto queue = ros::getGlobalCallbackQueue();
+// 	if (!queue->isEmpty()) {
+// 		if ( callOne )		
+// 			queue->callOne();			// calls callback fct. only for the oldest message
+// 		else
+// 			queue->callAvailable();		// calls callback fct. for all available messages.
+// 																//  Only newest message is processed. Older ones are discarded.
+// 			
+// 	}
 	
+// 	rosNodeHandle.
+// 		rosNodeHandle.get()
+// // 	auto queue = rosNodeHandle->getCallbackQueue();
+// 	if ( callOne )		
+// 		rosNodeHandle->getCallbackQueue();			// calls callback fct. only for the oldest message
+// 	else
+// 		rosNodeHandle->getCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
+// 															//  Only newest message is processed. Older ones are discarded.
+	
+// 	std::cout << "AAAAAAAAAAA" << std::endl;
 	double inVal = (data - offset) / scale;
 	if(inVal > maxIn) inVal = maxIn;
 	if(inVal < minIn) inVal = minIn;
 	
+// 	std::cout << "AAAAAAAAAAA" << std::endl;
 // 	std::cout << "timestamp: " << ti
 	
 	return inVal;
