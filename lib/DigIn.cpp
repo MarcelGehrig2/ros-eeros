@@ -18,7 +18,8 @@ DigIn::DigIn(std::string id,
 		rosNodeHandle(dev->getRosNodeHandle()), 
 		data(false),
 		queueSize(1000),
-		callOne(true)
+		callOne(true),
+		useEerosSystemTime(false)
 		{
 
 	// parsing additionalArguments:
@@ -39,6 +40,11 @@ DigIn::DigIn(std::string id,
 			dataField = value;
 		else if	((key=="queueSize") | (key==" queueSize"))
 			queueSize = std::stoi(value);
+		else if	((key=="useEerosSystemTime") | (key==" useEerosSystemTime")) {
+			if		(value=="true")		useEerosSystemTime = true;
+			else if	(value=="false")	useEerosSystemTime = false;
+			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+		}
 		else if	((key=="callOne") | (key==" callOne")) {
 			if		(value=="true")		callOne = true;
 			else if	(value=="false")	callOne = false;
@@ -69,6 +75,18 @@ bool DigIn::get() {
 
 uint64_t DigIn::getTimestamp() {
 	return timestamp;
+}
+
+void DigIn::setTimeStamp()
+{
+	timestamp = eeros::System::getTimeNs();
+}
+
+void DigIn::setTimeStamp(const std_msgs::Header& header)
+{
+	if (useEerosSystemTime)	setTimeStamp();
+	else					setTimestampFromRosMsgHeader(header);
+	
 }
 
 void DigIn::setTimestampFromRosMsgHeader(const std_msgs::Header& header) {

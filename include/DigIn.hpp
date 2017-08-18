@@ -20,9 +20,10 @@ namespace halros {
 	private:
 		// callback functions for ROS
 		void sensorMsgsBatteryStatePresent		(const sensor_msgs::BatteryState::Type& msg)	{	data = msg.present;
-																									setTimestampFromRosMsgHeader(msg.header); } ;
+																									setTimeStamp(msg.header); } ;
 		
-		
+		void setTimeStamp();
+		void setTimeStamp(const std_msgs::Header& header);
 		void setTimestampFromRosMsgHeader(const std_msgs::Header& header);
 		uint64_t timestamp;
 		
@@ -38,6 +39,7 @@ namespace halros {
 		std::string dataField;
 		int queueSize;
 		bool callOne;
+		bool useEerosSystemTime;
 		
 	};
 };

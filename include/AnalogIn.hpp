@@ -27,26 +27,28 @@ namespace halros {
 		// 2.) Create new callback functions for ROS
 		// /////////////////////////////////////////
 		void stdMsgsFloat64Data					(const std_msgs::Float64::Type& msg) 		{data = msg.data;
-																							 timestamp = eeros::System::getTimeNs(); } ;
+																							setTimeStamp(); } ;
 		
 		void sensorMsgsLaserScanAngleMin		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.angle_min;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanAngleMax		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.angle_max;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanAngleIncrement	(const sensor_msgs::LaserScan::Type& msg)	{data = msg.angle_increment;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanTimeIncrement	(const sensor_msgs::LaserScan::Type& msg)	{data = msg.time_increment;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanScanTime		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.scan_time;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanRangeMin		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.range_min;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		void sensorMsgsLaserScanRangeMax		(const sensor_msgs::LaserScan::Type& msg)	{data = msg.range_max;
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 		
 		void sensorMsgsJointStatePosition0		(const sensor_msgs::JointState::Type& msg)	{data = msg.position[0];
-																							 setTimestampFromRosMsgHeader(msg.header); } ;
+																							 setTimeStamp(msg.header); } ;
 
+		void setTimeStamp();
+		void setTimeStamp(const std_msgs::Header& header);
 		void setTimestampFromRosMsgHeader(const std_msgs::Header& header);
 		uint64_t timestamp;
 
@@ -61,6 +63,7 @@ namespace halros {
 		std::string dataField;
 		int queueSize;
 		bool callOne;
+		bool useEerosSystemTime;
 	};
 };
 

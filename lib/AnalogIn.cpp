@@ -23,10 +23,11 @@ AnalogIn::AnalogIn(std::string id,
 // 		      data(NAN),	// may causes "terminate called after throwing an instance of 'std::length_error'  what():  basic_string::_M_create" if topic does not exist
 		      data(0),
 		      queueSize(1000),
-		      callOne(true)
+		      callOne(true),
+		      useEerosSystemTime(false)
 		      {
-	
 	// parsing additionalArguments:
+	// ////////////////////////////
 	auto s = additionalArguments;
 	bool stop = false;
 	while(!stop) {
@@ -44,6 +45,11 @@ AnalogIn::AnalogIn(std::string id,
 			dataField = value;
 		else if	((key=="queueSize") | (key==" queueSize"))
 			queueSize = std::stoi(value);
+		else if	((key=="useEerosSystemTime") | (key==" useEerosSystemTime")) {
+			if		(value=="true")		useEerosSystemTime = true;
+			else if	(value=="false")	useEerosSystemTime = false;
+			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+		}
 		else if	((key=="callOne") | (key==" callOne")) {
 			if		(value=="true")		callOne = true;
 			else if	(value=="false")	callOne = false;
@@ -95,9 +101,13 @@ AnalogIn::AnalogIn(std::string id,
 // HAL functions
 // /////////////
 double AnalogIn::get() {
-	if ( callOne )		
-		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
-	else
+// 	static int counter2 = 0; //DEBUG
+// 	std::cout << "AnalogIn::get() counter = " << counter2 << std::endl;
+// 	counter2++;
+	
+// 	if ( callOne )		
+// 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
+// 	else
 		ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
 															//  Only newest message is processed. Older ones are discarded.	
 	
@@ -107,11 +117,25 @@ double AnalogIn::get() {
 	
 // 	std::cout << "timestamp: " << ti
 	
+	std::cout << "AnalogIn received Timestamp = " << timestamp << " at ros::Time::now().toNSec() = " << ros::Time::now().toNSec() << std::endl;
+	
 	return inVal;
 }
 
 uint64_t AnalogIn::getTimestamp() {
 	return timestamp;
+}
+
+void AnalogIn::setTimeStamp()
+{
+	timestamp = eeros::System::getTimeNs();
+}
+
+void AnalogIn::setTimeStamp(const std_msgs::Header& header)
+{
+	if (useEerosSystemTime)	setTimeStamp();
+	else					setTimestampFromRosMsgHeader(header);
+	
 }
 
 void AnalogIn::setTimestampFromRosMsgHeader(const std_msgs::Header& header) {
