@@ -38,6 +38,11 @@ DigOut::DigOut(	std::string id,
 			dataField = value;
 		else if	((key=="queueSize") | (key==" queueSize"))
 			queueSize = std::stoi(value);
+		else if	((key=="useSignalInTimestamp") | (key==" useSignalInTimestamp")) {
+			if		(value=="true")		useSignalInTimestamp = true;
+			else if	(value=="false")	useSignalInTimestamp = false;
+			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+		}
 		else
 			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
@@ -56,16 +61,12 @@ DigOut::DigOut(	std::string id,
 		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
 }
 
-ros::Time DigOut::getTime() {
-	return ros::Time::now();
-}
-
 // set functions for ROS
 // /////////////////////
 // sensor_msgs::BatteryState
-void DigOut::sensorMsgsBatteryStatePresent(const bool value, const ros::Publisher& publisher){
+void DigOut::sensorMsgsBatteryStatePresent(const bool value, const uint64_t timestamp, const ros::Publisher& publisher){
 	sensor_msgs::BatteryState msg;
-	msg.header.stamp = getTime();
+	msg.header.stamp = eeros::control::rosTools::convertToRosTime(timestamp);
 	msg.present = static_cast<uint8_t>( value );
 	publisher.publish(msg);
 }
@@ -83,7 +84,17 @@ void DigOut::set(bool value) {
 // 	std::cout << "DigOut set: " << value << std::endl;
 	if(inverted) value = !value;
 	data = value;
-	setFunction(value, publisher);
+	
+	uint64_t timestamp;
+	if (useSignalInTimestamp)	timestamp = timestampSignalIn;
+	else 						timestamp = eeros::System::getTimeNs();
+	
+	setFunction(value, timestamp, publisher);
+}
+
+void DigOut::setTimestampSignalIn(uint64_t timestampNs)
+{
+	this->timestampSignalIn = timestampNs;
 }
 
 extern "C" eeros::hal::Output<bool> *createDigOut(	std::string id,

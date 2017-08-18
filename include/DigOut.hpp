@@ -3,6 +3,7 @@
 
 #include <string>
 #include <eeros/hal/Output.hpp>
+#include <eeros/control/ROS/EerosRosTools.hpp>
 #include "RosNodeDevice.hpp"
 #include <ros/ros.h>
 // ROS message types
@@ -14,17 +15,18 @@ namespace halros {
 		DigOut(std::string id, void* libHandle, std::string device, uint32_t subDeviceNumber, uint32_t channel,
 			   bool inverted = false, std::string additionalArguments = "");
 		
-		virtual bool get();
-		virtual void set(bool value);
+		virtual bool get() override;
+		virtual void set(bool value) override;
+		virtual void setTimestampSignalIn(uint64_t timestampNs) override;
 		
 		
 	private:
-		void (*setFunction) (const bool, const ros::Publisher&);
-		static ros::Time getTime();
+		void (*setFunction) (const bool, const uint64_t timestamp, const ros::Publisher&);
 		
 		// set functions for ROS
 		// /////////////////////
-		static void sensorMsgsBatteryStatePresent		(const bool value, const ros::Publisher& publisher);
+		static void sensorMsgsBatteryStatePresent		(const bool value, const uint64_t timestamp, const ros::Publisher& publisher);
+		
 		
 		RosNodeDevice* dev;
 		std::shared_ptr<ros::NodeHandle> rosNodeHandle;
@@ -33,11 +35,13 @@ namespace halros {
 		uint32_t channel;
 		ros::Publisher publisher;
 		bool data; 
+		uint64_t timestampSignalIn;
 		std::string msgType;
 		std::string topic;
 		std::string dataField;
 		int queueSize;
 		bool callOne;
+		bool useSignalInTimestamp;
 		
 		bool inverted;
 	};
