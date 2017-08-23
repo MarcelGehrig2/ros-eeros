@@ -48,15 +48,15 @@ AnalogIn::AnalogIn(std::string id,
 		else if	((key=="useEerosSystemTime") | (key==" useEerosSystemTime")) {
 			if		(value=="true")		useEerosSystemTime = true;
 			else if	(value=="false")	useEerosSystemTime = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else if	((key=="callOne") | (key==" callOne")) {
 			if		(value=="true")		callOne = true;
 			else if	(value=="false")	callOne = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else
-			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
 	
 	// 3.) Extend parser by selecting correct callback function for ros
@@ -81,20 +81,20 @@ AnalogIn::AnalogIn(std::string id,
 		else if ( dataField == "range_max" )
 					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsLaserScanRangeMax, this);
 		else
-			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	
 	else if	( msgType == "sensor_msgs::JointState" ) {
 		if 		( dataField == "position0" )
 					subscriber = rosNodeHandle->subscribe(topic, queueSize, &AnalogIn::sensorMsgsJointStatePosition0, this);
 		else
-			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	
 	else if ( msgType == "" )
-		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
-		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
 }
 
 
@@ -105,11 +105,11 @@ double AnalogIn::get() {
 // 	std::cout << "AnalogIn::get() counter = " << counter2 << std::endl;
 // 	counter2++;
 	
-// 	if ( callOne )		
-// 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
-// 	else
+	if ( callOne )		
+		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
+	else
 		ros::getGlobalCallbackQueue()->callAvailable();		// calls callback fct. for all available messages.
-															//  Only newest message is processed. Older ones are discarded.	
+															// Only newest message is processed. Older ones are discarded.	
 	
 	double inVal = (data - offset) / scale;
 	if(inVal > maxIn) inVal = maxIn;

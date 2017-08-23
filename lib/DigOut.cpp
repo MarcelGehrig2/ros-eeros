@@ -41,10 +41,10 @@ DigOut::DigOut(	std::string id,
 		else if	((key=="useSignalInTimestamp") | (key==" useSignalInTimestamp")) {
 			if		(value=="true")		useSignalInTimestamp = true;
 			else if	(value=="false")	useSignalInTimestamp = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else
-			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
 	
 	// selecting callback function for ros
@@ -53,12 +53,12 @@ DigOut::DigOut(	std::string id,
 		if ( dataField == "present" )
 			setFunction = &sensorMsgsBatteryStatePresent;
 		else 
-			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	else if ( msgType == "" )
-		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
-		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
 }
 
 // set functions for ROS

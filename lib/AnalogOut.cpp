@@ -47,10 +47,10 @@ AnalogOut::AnalogOut(std::string id,
 		else if	((key=="useSignalInTimestamp") | (key==" useSignalInTimestamp")) {
 			if		(value=="true")		useSignalInTimestamp = true;
 			else if	(value=="false")	useSignalInTimestamp = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else
-			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
 	
 	// 3.) Extend parser by setting callback function
@@ -58,7 +58,6 @@ AnalogOut::AnalogOut(std::string id,
 		publisher = rosNodeHandle->advertise<std_msgs::Float64>(topic, queueSize);
 		setFunction = &stdMsgsFloat64Data;
 	}
-	
 	else if ( msgType == "sensor_msgs::LaserScan" ) {			
 		publisher = rosNodeHandle->advertise<sensor_msgs::LaserScan>(topic, queueSize);
 		if 		( dataField == "angle_min" )
@@ -76,21 +75,22 @@ AnalogOut::AnalogOut(std::string id,
 		else if ( dataField == "range_max" )
 			setFunction = &sensorMsgsLaserScanRangeMax;
 		else
-			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	
 	else if ( msgType == "sensor_msgs::JointState" ) {
 		publisher = rosNodeHandle->advertise<sensor_msgs::JointState>(topic, queueSize);
+		std::cout << "aaaaaaaa"<< dataField << std::endl;
 		if 		( dataField == "effort0" )
 			setFunction = &sensorMsgsJointStateEffort0;
 		else
-			std::cout << "ERROR ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: dataField '" << dataField << "' of msgType '" << msgType << "' is not supported." << std::endl;
 	}
 	
 	else if ( msgType == "" )
-		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
-		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
 }
 
 

@@ -12,7 +12,9 @@
 // #include "Reflect.hpp"
 
 namespace halros {
-
+	
+	static const std::string errorString = "\033[1;31mERROR ros-eeros: \033[0m";
+	
 	class RosNodeDevice {
 	public:
 		virtual ~RosNodeDevice();

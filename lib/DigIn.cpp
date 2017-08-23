@@ -43,15 +43,15 @@ DigIn::DigIn(std::string id,
 		else if	((key=="useEerosSystemTime") | (key==" useEerosSystemTime")) {
 			if		(value=="true")		useEerosSystemTime = true;
 			else if	(value=="false")	useEerosSystemTime = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else if	((key=="callOne") | (key==" callOne")) {
 			if		(value=="true")		callOne = true;
 			else if	(value=="false")	callOne = false;
-			else std::cout << "ERROR ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
+			else std::cout << errorString << "ros-eeros wrapper library: value '" << value << "' for key '" << key << "' is not supported." << std::endl;
 		}
 		else
-			std::cout << "ERROR ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
+			std::cout << errorString << "ros-eeros wrapper library: key '" << key << "' is not supported." << std::endl;
 	}
 	
 	// selecting callback function for ros
@@ -59,9 +59,9 @@ DigIn::DigIn(std::string id,
 			subscriber = rosNodeHandle->subscribe(topic, queueSize, &DigIn::sensorMsgsBatteryStatePresent, this);
 	}
 	else if ( msgType == "" )
-		std::cout << "ERROR ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType is empty." << msgType << std::endl;
 	else 
-		std::cout << "ERROR ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
+		std::cout << errorString << "ros-eeros wrapper library: msgType '" << msgType << "' is not defined" << std::endl;
 
 }
 
