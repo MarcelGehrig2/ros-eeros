@@ -54,6 +54,7 @@ AnalogOut::AnalogOut(std::string id,
 	}
 	
 	// 3.) Extend parser by setting callback function
+	// //////////////////////////////////////////////
 	if		( msgType == "std_msgs::Float64" ) {
 		publisher = rosNodeHandle->advertise<std_msgs::Float64>(topic, queueSize);
 		setFunction = &stdMsgsFloat64Data;

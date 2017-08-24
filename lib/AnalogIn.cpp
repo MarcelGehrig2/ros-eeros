@@ -19,8 +19,7 @@ AnalogIn::AnalogIn(std::string id,
 		      subDeviceNumber(subDeviceNumber),
 		      channel(channel),
 		      dev(RosNodeDevice::getDevice(device)),
-		      rosNodeHandle(dev->getRosNodeHandle()), 
-// 		      data(NAN),	// may causes "terminate called after throwing an instance of 'std::length_error'  what():  basic_string::_M_create" if topic does not exist
+		      rosNodeHandle(dev->getRosNodeHandle()),
 		      data(0),
 		      queueSize(1000),
 		      callOne(true),
@@ -101,10 +100,6 @@ AnalogIn::AnalogIn(std::string id,
 // HAL functions
 // /////////////
 double AnalogIn::get() {
-// 	static int counter2 = 0; //DEBUG
-// 	std::cout << "AnalogIn::get() counter = " << counter2 << std::endl;
-// 	counter2++;
-	
 	if ( callOne )		
 		ros::getGlobalCallbackQueue()->callOne();			// calls callback fct. only for the oldest message
 	else
@@ -114,8 +109,6 @@ double AnalogIn::get() {
 	double inVal = (data - offset) / scale;
 	if(inVal > maxIn) inVal = maxIn;
 	if(inVal < minIn) inVal = minIn;
-	
-// 	std::cout << "timestamp: " << ti
 	
 	std::cout << "AnalogIn received Timestamp = " << timestamp << " at ros::Time::now().toNSec() = " << ros::Time::now().toNSec() << std::endl;
 	
